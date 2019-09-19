@@ -7,13 +7,15 @@ import './styles/index.css'
 import {
   NavBar,
   Field,
-  Button
+  Button,
+  Toast
 } from 'vant'
 Vue.config.productionTip = false
 
 Vue.use(NavBar)
   .use(Field)
   .use(Button)
+  .use(Toast)
 new Vue({
   router,
   store,
