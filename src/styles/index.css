@@ -1,0 +1,6 @@
+.login .van-nav-bar {
+  background-color: skyblue;
+}
+.login .van-nav-bar .van-nav-bar__title {
+  color: #fff;
+}
