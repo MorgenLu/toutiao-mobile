@@ -11,20 +11,43 @@ import {
 } from 'vee-validate'
 import * as rules from 'vee-validate/dist/rules' // 加载所有的验证规则
 import zhCN from 'vee-validate/dist/locale/zh_CN' //
-
+import {
+  relativeTime
+} from '@/utils/date'
 import {
   NavBar,
   Field,
   Button,
-  Toast
+  Toast,
+  Tabbar,
+  TabbarItem,
+  Tab,
+  Tabs,
+  List,
+  Cell,
+  Grid,
+  GridItem,
+  PullRefresh,
+  Image
 } from 'vant'
 Vue.config.productionTip = false
+
+Vue.filter('relativeTime', relativeTime)
 
 Vue.use(NavBar)
   .use(Field)
   .use(Button)
   .use(Toast)
-
+  .use(Tabbar)
+  .use(TabbarItem)
+  .use(Tab)
+  .use(Tabs)
+  .use(List)
+  .use(Cell)
+  .use(Grid)
+  .use(GridItem)
+  .use(PullRefresh)
+  .use(Image)
 // 验证
 for (let rule in rules) {
   extend(rule, {
