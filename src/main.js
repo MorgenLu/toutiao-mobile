@@ -28,7 +28,10 @@ import {
   Grid,
   GridItem,
   PullRefresh,
-  Image
+  Image,
+  Icon,
+  Popup
+
 } from 'vant'
 Vue.config.productionTip = false
 
@@ -48,6 +51,8 @@ Vue.use(NavBar)
   .use(GridItem)
   .use(PullRefresh)
   .use(Image)
+  .use(Icon)
+  .use(Popup)
 // 验证
 for (let rule in rules) {
   extend(rule, {

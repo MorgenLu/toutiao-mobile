@@ -33,40 +33,83 @@
           </van-list>
         </van-pull-refresh>
       </van-tab>
+      <div slot="nav-right" class="wap-nav" @click="isChannelEditShow = true">
+        <van-icon name="wap-nav" size="24" />
+      </div>
     </van-tabs>
+    <van-popup v-model="isChannelEditShow" position="bottom" :style="{ height: '95%' }" round>
+      <div>
+        <van-cell title="我的频道">
+          <van-button type="primary" size="mini" round>编辑</van-button>
+        </van-cell>
+        <van-grid :gutter="10">
+          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name" />
+        </van-grid>
+      </div>
+      <div>
+        <van-cell title="频道推荐"></van-cell>
+        <van-grid :gutter="10">
+          <van-grid-item v-for="value in 8" :key="value" text="文字" />
+        </van-grid>
+      </div>
+    </van-popup>
   </div>
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channel'
+import { getUserOrDefaultChannels } from '@/api/channel'
 import { getArticles } from '@/api/article'
-
+import { getItem } from '@/utils/storage'
+// 引入mapstate
+import { mapState } from 'vuex'
 export default {
   name: 'HomeIndex',
   data () {
     return {
+      // 控制频道选择的数据
       active: 0,
-      channels: []
+      // 频道列表
+      channels: [],
+      // 向上弹窗控制
+      isChannelEditShow: true
     }
   },
+
   computed: {
+    // 使用容器中的user数据(本地的token数据)
+    ...mapState(['user']),
+    // 设置计算属性返回选中的频道
     currentChannel () {
       return this.channels[this.active]
     }
   },
   methods: {
-    async loadAllChannels () {
-      const { data } = await getAllChannels()
-      data.data.channels.forEach(channel => {
+    // 获取用户频道列表
+    async loadUserOrDefaultChannels () {
+      let channels = []
+      if (this.user) {
+        const { data } = await getUserOrDefaultChannels()
+        channels = data.data.channels
+      } else {
+        const localChannels = getItem('channels')
+        if (localChannels) {
+          channels = localChannels
+        } else {
+          const { data } = await getUserOrDefaultChannels()
+          channels = data.data.channels
+        }
+      }
+
+      channels.forEach(channel => {
         channel.loading = false
         channel.finished = false
         channel.articles = []
         channel.timestamp = null
         channel.isLoading = false
       })
-      console.log(data)
-      this.channels = data.data.channels
+      this.channels = channels
     },
+    // 获取对应频道内容
     async onLoad () {
       const currentChannel = this.currentChannel
       const { data } = await getArticles({
@@ -86,6 +129,8 @@ export default {
         currentChannel.timestamp = preTimestamp
       }
     },
+
+    // 下拉获取数据
     async onRefresh () {
       const currentChannel = this.currentChannel
       const { data } = await getArticles({
@@ -100,25 +145,38 @@ export default {
   },
 
   created () {
-    this.loadAllChannels()
+    this.loadUserOrDefaultChannels()
   }
 }
 </script>
 
-<style lang="less" >
+<style lang="less" scoped>
 .home {
   .van-tabs {
-    .van-tabs__content {
+    /deep/.van-tabs__content {
       margin-bottom: 50px;
       margin-top: 90px;
     }
-    .van-tabs__wrap {
+    /deep/ .van-tabs__wrap {
       position: fixed;
       top: 46px;
       z-index: 2;
       left: 0;
       right: 0;
     }
+  }
+  .article-info {
+    .meta span {
+      margin-right: 10px;
+    }
+  }
+  .wap-nav {
+    position: sticky;
+    right: 0;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    opacity: 0.8;
   }
 }
 </style>

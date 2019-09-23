@@ -9,3 +9,10 @@ export const getAllChannels = () => {
     method: 'get'
   })
 }
+// 获取用户频道列表或者默认推荐的频道列表
+export const getUserOrDefaultChannels = () => {
+  return request({
+    method: 'get',
+    url: '/app/v1_0/user/channels'
+  })
+}
