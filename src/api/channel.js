@@ -16,3 +16,15 @@ export const getUserOrDefaultChannels = () => {
     url: '/app/v1_0/user/channels'
   })
 }
+
+// 新增用户频道
+
+export const resetUserChannels = (channels) => {
+  return request({
+    method: 'put',
+    url: '/app/v1_0/user/channels',
+    data: {
+      channels
+    }
+  })
+}

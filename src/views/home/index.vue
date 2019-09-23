@@ -40,19 +40,22 @@
     <van-popup v-model="isChannelEditShow" position="bottom" :style="{ height: '95%' }" round>
       <div>
         <van-cell title="我的频道">
-          <van-button type="primary" size="mini" round>编辑</van-button>
+          <van-button type="primary" size="mini" round @click="isEdit=!isEdit">{{isEdit? '完成':'编辑'}}</van-button>
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name" />
+          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name">
+            <van-icon name="clear" slot="icon" class="close-icon" v-show="isEdit" />
+          </van-grid-item>
         </van-grid>
       </div>
       <div>
-        <van-cell title="频道推荐"></van-cell>
+        <van-cell title="频道推荐" />
         <van-grid :gutter="10">
           <van-grid-item
             v-for="channel in remainingChannels"
             :key="channel.id"
             :text="channel.name"
+            @click="onAddChannel(channel)"
           />
         </van-grid>
       </div>
@@ -61,9 +64,13 @@
 </template>
 
 <script>
-import { getAllChannels, getUserOrDefaultChannels } from '@/api/channel'
+import {
+  getAllChannels,
+  getUserOrDefaultChannels,
+  resetUserChannels
+} from '@/api/channel'
 import { getArticles } from '@/api/article'
-import { getItem } from '@/utils/storage'
+import { getItem, setItem } from '@/utils/storage'
 // 引入mapstate
 import { mapState } from 'vuex'
 export default {
@@ -77,7 +84,9 @@ export default {
       // 向上弹窗控制
       isChannelEditShow: true,
       // 所有频道列表
-      allChannels: []
+      allChannels: [],
+      // 控制删除图标
+      isEdit: false
     }
   },
 
@@ -104,10 +113,34 @@ export default {
           channels.push(channel)
         }
       })
+      // 为剩余的频道添加需要的数据
+      channels.forEach(channel => {
+        channel.loading = false
+        channel.finished = false
+        channel.articles = []
+        channel.timestamp = null
+        channel.isLoading = false
+      })
       return channels
     }
   },
   methods: {
+    // 设置新增用户频道
+    async onAddChannel (channel) {
+      this.channels.push(channel)
+      if (this.user) {
+        const channels = []
+        this.channels.slice(1).forEach((item, index) => {
+          channels.push({
+            id: item.id,
+            seq: index + 2
+          })
+        })
+        await resetUserChannels(channels)
+      } else {
+        setItem('channels', this.channels)
+      }
+    },
     // 获取用户频道列表
     async loadUserOrDefaultChannels () {
       let channels = []
@@ -207,6 +240,12 @@ export default {
     align-items: center;
     background-color: #fff;
     opacity: 0.8;
+  }
+  .close-icon {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    z-index: 2;
   }
 }
 </style>
