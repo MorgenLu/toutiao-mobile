@@ -49,7 +49,11 @@
       <div>
         <van-cell title="频道推荐"></van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="value in 8" :key="value" text="文字" />
+          <van-grid-item
+            v-for="channel in remainingChannels"
+            :key="channel.id"
+            :text="channel.name"
+          />
         </van-grid>
       </div>
     </van-popup>
@@ -57,7 +61,7 @@
 </template>
 
 <script>
-import { getUserOrDefaultChannels } from '@/api/channel'
+import { getAllChannels, getUserOrDefaultChannels } from '@/api/channel'
 import { getArticles } from '@/api/article'
 import { getItem } from '@/utils/storage'
 // 引入mapstate
@@ -68,10 +72,12 @@ export default {
     return {
       // 控制频道选择的数据
       active: 0,
-      // 频道列表
+      // 用户频道列表
       channels: [],
       // 向上弹窗控制
-      isChannelEditShow: true
+      isChannelEditShow: true,
+      // 所有频道列表
+      allChannels: []
     }
   },
 
@@ -81,6 +87,24 @@ export default {
     // 设置计算属性返回选中的频道
     currentChannel () {
       return this.channels[this.active]
+    },
+    // 通过计算属性获取剩余的频道推荐列表
+    remainingChannels () {
+      const channels = []
+      // 如果我的频道不包含当前遍历频道，那它就是剩余的频道
+      // find 方法：遍历数组，查找满足 item.id === channel.id 的元素，找到就返回该元素
+      // 如果直到遍历结束都没有，则返回 undefined
+      // findIndex 获取满足条件的元素，如果有，则返回该元素对应的索引
+      // 如果没有满足的元素，则返回 -1
+      this.allChannels.forEach(channel => {
+        const index = this.channels.findIndex(item => {
+          return item.id === channel.id
+        })
+        if (index === -1) {
+          channels.push(channel)
+        }
+      })
+      return channels
     }
   },
   methods: {
@@ -108,6 +132,11 @@ export default {
         channel.isLoading = false
       })
       this.channels = channels
+    },
+    // 获取剩余的频道推荐列表
+    async loadAllChannels () {
+      const { data } = await getAllChannels()
+      this.allChannels = data.data.channels
     },
     // 获取对应频道内容
     async onLoad () {
@@ -146,6 +175,7 @@ export default {
 
   created () {
     this.loadUserOrDefaultChannels()
+    this.loadAllChannels()
   }
 }
 </script>
