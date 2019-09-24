@@ -30,7 +30,8 @@ import {
   PullRefresh,
   Image,
   Icon,
-  Popup
+  Popup,
+  Search
 
 } from 'vant'
 Vue.config.productionTip = false
@@ -53,6 +54,7 @@ Vue.use(NavBar)
   .use(Image)
   .use(Icon)
   .use(Popup)
+  .use(Search)
 // 验证
 for (let rule in rules) {
   extend(rule, {

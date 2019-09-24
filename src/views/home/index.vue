@@ -1,6 +1,15 @@
 <template>
   <div class="home">
-    <van-nav-bar fixed title="首页" />
+    <van-nav-bar fixed>
+      <van-button
+        class="search-btn"
+        type="info"
+        slot="title"
+        round
+        size="small"
+        @click="$router.push('/search')"
+      >搜索</van-button>
+    </van-nav-bar>
     <van-tabs v-model="active">
       <van-tab :title="channel.name" v-for="channel in channels" :key="channel.id">
         <van-pull-refresh v-model="channel.isLoading" @refresh="onRefresh">
@@ -235,6 +244,10 @@ export default {
 
 <style lang="less" scoped>
 .home {
+  .search-btn {
+    width: 100%;
+    background: #5babfb;
+  }
   .van-tabs {
     /deep/.van-tabs__content {
       margin-bottom: 50px;
