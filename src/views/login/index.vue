@@ -57,6 +57,7 @@ export default {
         console.log(res)
         this.$store.commit('setUser', res.data.data)
         this.$toast.success('登录成功')
+        this.$router.push({ path: '/' })
       } catch (err) {
         if (err.response && err.response.status === 400) {
           this.$toast.fail('手机号或验证码错误')

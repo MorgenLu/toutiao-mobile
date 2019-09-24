@@ -43,7 +43,12 @@
           <van-button type="primary" size="mini" round @click="isEdit=!isEdit">{{isEdit? '完成':'编辑'}}</van-button>
         </van-cell>
         <van-grid :gutter="10">
-          <van-grid-item v-for="channel in channels" :key="channel.id" :text="channel.name">
+          <van-grid-item
+            v-for="(channel, index) in channels"
+            :key="channel.id"
+            :text="channel.name"
+            @click="onUserChannelClick(channel,index) "
+          >
             <van-icon name="clear" slot="icon" class="close-icon" v-show="isEdit" />
           </van-grid-item>
         </van-grid>
@@ -67,7 +72,8 @@
 import {
   getAllChannels,
   getUserOrDefaultChannels,
-  resetUserChannels
+  resetUserChannels,
+  deleteUserChannel
 } from '@/api/channel'
 import { getArticles } from '@/api/article'
 import { getItem, setItem } from '@/utils/storage'
@@ -82,7 +88,7 @@ export default {
       // 用户频道列表
       channels: [],
       // 向上弹窗控制
-      isChannelEditShow: true,
+      isChannelEditShow: false,
       // 所有频道列表
       allChannels: [],
       // 控制删除图标
@@ -125,6 +131,20 @@ export default {
     }
   },
   methods: {
+    // 设置编辑编辑状态下删除用户频道,完成状态下关闭弹窗显示对应频道内容
+    async onUserChannelClick (channel, index) {
+      if (this.isEdit) {
+        this.channels.splice(index, 1)
+        if (this.user) {
+          await deleteUserChannel(channel.id)
+        } else {
+          setItem('channels', this.channels)
+        }
+      } else {
+        this.active = index
+        this.isChannelEditShow = false
+      }
+    },
     // 设置新增用户频道
     async onAddChannel (channel) {
       this.channels.push(channel)
